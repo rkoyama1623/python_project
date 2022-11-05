@@ -10,7 +10,8 @@ SUDO:=sudo -E
 YES:=-y --allow-unauthenticated
 APT:=apt-get
 PYPI2_PACKAGE:=numpy matplotlib ipython
-PYPI3_PACKAGE:=jupyterlab ipympl sympy pandas control PyYAML openpyxl
+PYPI3_PACKAGE:=jupyterlab ipympl pysqlite2 sympy pandas control PyYAML openpyxl
+APT_PACKAGE:=zlib1g-dev libsqlite3-dev libbz2-dev libncurses5-dev libgdbm-dev liblzma-dev libssl-dev tcl-dev tk-dev libreadline-dev
 
 # Public targets
 help: ## Show this help
@@ -19,6 +20,7 @@ help: ## Show this help
 	done
 
 SETUP-DEPS := ${PYENV_ROOT}/versions/$(PYTHON3_VIRTUAL_ENV)/
+SETUP-DEPS += apt-packages
 SETUP-DEPS += python2-packages
 SETUP-DEPS += python3-packages
 SETUP-DEPS += /usr/share/fonts/truetype/takao-gothic/TakaoGothic.ttf
@@ -27,7 +29,9 @@ setup: $(SETUP-DEPS) ## Setup project
 
 start-jupyterlab: notebooks ## Start jupyter-lab
 	export MAKE_SOURCE_DIR=$(shell cd $(MAKE_SOURCE_DIR); pwd); \
-	cd $(MAKE_SOURCE_DIR)/notebooks && jupyter lab --no-browser
+	cd $(MAKE_SOURCE_DIR)/notebooks;\
+	source ${PYENV_ROOT}/versions/$(PYTHON3_VIRTUAL_ENV)/bin/activate; \
+	jupyter lab --no-browser
 
 start-notebook: notebooks ## Start jupyter notebook
 	export MAKE_SOURCE_DIR=$(shell cd $(MAKE_SOURCE_DIR); pwd); \
@@ -57,7 +61,10 @@ debug: PROXY-SETTING
 	done
 
 # for developper
-${PYENV_ROOT}/versions/$(PYTHON3_VIRTUAL_ENV)/:
+apt-packages:
+	$(SUDO) $(APT) install $(APT_PACKAGE) $(YES)
+
+${PYENV_ROOT}/versions/$(PYTHON3_VIRTUAL_ENV)/: apt-packages
 	-@echo "checking $@";\
 	if [ -d $@ ]; then \
 		echo "OK"; \
@@ -99,10 +106,14 @@ python3-packages: ${PYENV_ROOT}/versions/$(PYTHON3_VIRTUAL_ENV)/ PROXY-SETTING
 	$(SUDO) $(APT) install fonts-takao-gothic $(YES)
 
 notebooks:
-	cd $(MAKE_SOURCE_DIR); \
-	mkdir notebooks
+	mkdir -p $(MAKE_SOURCE_DIR)/notebooks;\
+	cd $(MAKE_SOURCE_DIR)/notebooks; \
+	pyenv local $(PYTHON3_VIRTUAL_ENV)
 
-.PHONY: help python2-packages python3-packages PROXY-SETTING
+clean:
+	pyenv uninstall $(PYTHON3_VIRTUAL_ENV)
+
+.PHONY: help apt-packages python2-packages python3-packages PROXY-SETTING
 
 PROXY_SERVER = example.com
 PORT         = 80
