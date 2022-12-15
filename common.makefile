@@ -100,7 +100,9 @@ python3-packages: ${PYENV_ROOT}/versions/$(PYTHON3_VIRTUAL_ENV)/ PROXY-SETTING
 
 notebooks:
 	cd $(MAKE_SOURCE_DIR); \
-	mkdir notebooks
+	mkdir notebooks; \
+	cd notebooks; \
+	pyenv local $(PYTHON3_VIRTUAL_ENV)
 
 .PHONY: help python2-packages python3-packages PROXY-SETTING
 
