@@ -18,7 +18,7 @@ help: ## Show this help
 		grep -E '^[a-zA-Z_-]+:.*?## .*$$' $$f | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}';\
 	done
 
-SETUP-DEPS := ${PYENV_ROOT}/versions/$(PYTHON3_VIRTUAL_ENV)/
+SETUP-DEPS := $(PYENV_ROOT)/versions/$(PYTHON3_VIRTUAL_ENV)/
 SETUP-DEPS += python2-packages
 SETUP-DEPS += python3-packages
 SETUP-DEPS += /usr/share/fonts/truetype/takao-gothic/TakaoGothic.ttf
@@ -43,6 +43,8 @@ debug: PROXY-SETTING
 	@# Proxy variables
 	@echo USE_PROXY: $(USE_PROXY)
 	@echo PROXY_URL: $(PROXY_URL)
+	@# pyenv
+	@echo PYENV_ROOT: ${PYENV_ROOT}
 	@# Python environments
 	@echo PYTHON3_VIRTUAL_ENV: $(PYTHON3_VIRTUAL_ENV)
 
